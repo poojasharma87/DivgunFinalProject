@@ -3,9 +3,10 @@ const Engine = Matter.Engine;
 const World = Matter.World;
 const Bodies = Matter.Bodies;
 const Body = Matter.Body;
-var d1
-var drops =[];
 
+var drops =[];
+var score=0;
+var gameStarted;
 function preload()
 {
 	
@@ -30,17 +31,17 @@ function setup() {
 	engine = Engine.create();
 	world = engine.world;
 
-	//Create the Objects Here.
-tap1=new tap(150,100);
-tap2=new tap(250,100);
-tap3=new tap(350,100);
-tap4=new tap(450,100);
-tap5=new tap(550,100);
 
 glass1=new glass(400,280,20,20);
-
-
 ground1=new ground(400,390,800,10)
+startButton = createButton('Start Game');
+startButton.position(375, 200);
+startButton.mousePressed(startGame);
+
+
+
+// set gameStarted equal to false
+gameStarted = false;
 
 
 	Engine.run(engine);
@@ -50,48 +51,78 @@ ground1=new ground(400,390,800,10)
 
 function draw() {
   rectMode(CENTER);
-  background("white");
-  tap1.display();
-  tap2.display();
-  tap3.display();
-  tap4.display();
-  tap5.display();
+  background("black");
+
   ground1.display();
   glass1.display();
- 
+ // display score
+ fill("red");
+ noStroke();
+ textSize(24);
+ text("Score: " + score, 30, 50);
+  if(gameStarted === true)
+  {
   
-
-  var rand=Math.ceil(random(1,5));
-  if(rand===1){
-	  drops.push(new drop(100,120));
+    // hide start button
+    startButton.hide();
+  
+    // display glass
+    glass1.display();
+	var r = Math.ceil(random(30));
+    if(r == 1)
+    {
+      drops.push(new drop());
+    }
+  
+    // loop through each drop
+    for (var j=0; j<drops.length; j++) 
+    {
+      // display dots
+      drops[j].display();
+    
+      // check if dot reaches bottom of screen
+      if(drops[j].ypos > 500)
+      {
+        // remove dot
+        drops.splice(j, 1);
+    
+      } else {
+    
+        // check if pacman is touching dot
+        var d2 = dist(drops[j].xpos, drops[j].ypos, glass1.xpos, glass1.ypos);
+        if(d2 < 25)
+        {
+          // remove dot
+          drops.splice(j, 1);
+        
+          // increase score by one
+          score++;
+    
+        }
+      }
+    }
+  
+    // check for game over
+    if(score >=100)
+    {
+      
+      score = 0;      
+    glass1.x=400;  
+	drops = [];
+      
+      
+      // set gameStarted to false
+      gameStarted = false;
+    }
+  
   }
-  else if(rand===2){
-	drops.push(new drop(200,120));
-}
-else if(rand===3){
-	drops.push(new drop(300,120));
-}
-else if(rand===4){
-	drops.push(new drop(400,120));
-}
-else {
-	drops.push(new drop(500,120));
 }
 
-for(var i=0;i<drops.length-1;i++){
-	drops[i].display();
-}
-d1=dist(drops[i].x,drops[i].y,ground.x,ground.y)
-if(d1<20){
-	drops.pop(drops[i]);
-	
-}
- 
-
-console.log(rand);
-  drawSprites();
+function startGame()
+{
+  // change gameStarted variable
+  gameStarted = true;
+  
  
 }
-
-
 
